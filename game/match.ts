@@ -1,8 +1,16 @@
 import { assign, createMachine, sendParent } from "xstate";
-import { CardIndex, MatchContext } from "./types";
+import { CardIndex, CardValue } from "./types";
 import { animals } from "./emojis";
 import { shuffle, takeRandom } from "./utils/array";
 import { playEndAudio, playFlipAudio, playMatchAudio } from "./audio";
+
+type MatchContext = {
+  flippedCards: Array<CardIndex>;
+  board: Array<CardValue | undefined>;
+  rows: number;
+  columns: number;
+  score: number;
+};
 
 type FlipCardEvent = {
   type: "FLIP_CARD";
@@ -28,6 +36,18 @@ const removeFlippedCards = assign<MatchContext, MatchEvent>((context) => {
   return {
     flippedCards: [],
     board: updatedBoard,
+  };
+});
+
+const addTwoScores = assign<MatchContext, MatchEvent>((context) => {
+  return {
+    score: context.score + 2,
+  };
+});
+
+const removeOneScore = assign<MatchContext, MatchEvent>((context) => {
+  return {
+    score: context.score - 1,
   };
 });
 
@@ -59,6 +79,7 @@ export const createMatchMachine = () =>
         board: createBoard({ numberOfPairs: 8 }),
         columns: 4,
         rows: 4,
+        score: 0,
       },
       states: {
         idle: {
@@ -84,9 +105,13 @@ export const createMatchMachine = () =>
               {
                 target: "success",
                 cond: "flippedCardsAreMatching",
-                actions: ["removeFlippedCards", "playMatchAudio"],
+                actions: [
+                  "removeFlippedCards",
+                  "playMatchAudio",
+                  "addTwoScores",
+                ],
               },
-              { target: "fail", actions: "untapCards" },
+              { target: "fail", actions: ["untapCards", "removeOneScore"] },
             ],
           },
         },
@@ -114,6 +139,8 @@ export const createMatchMachine = () =>
         playMatchAudio,
         untapCards,
         playEndAudio,
+        addTwoScores,
+        removeOneScore,
       },
       guards: {
         flippedCardsAreMatching,

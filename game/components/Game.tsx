@@ -3,6 +3,7 @@ import { useMachine } from "@xstate/react";
 import React from "react";
 import { gameMachine } from "../game";
 import { Board } from "./Board";
+import { Score } from "./Score";
 
 export const Game = () => {
   const [game, sendGameEvent] = useMachine(gameMachine);
@@ -29,18 +30,27 @@ export const Game = () => {
   if (game.matches("started") && game.context.match) {
     return (
       <Center p={10}>
-        <Board match={game.context.match} />
+        <Box>
+          <Score py={4} match={game.context.match} />
+          <Board match={game.context.match} />
+        </Box>
       </Center>
     );
   }
 
-  if (game.matches("ended")) {
+  if (game.matches("ended") && game.context.match) {
     return (
       <Center p={20}>
         <Box textAlign="center">
-          <Heading as="h1" fontSize="6xl" mb={8}>
+          <Heading as="h1" fontSize="6xl">
             Completed!
           </Heading>
+          <Score
+            match={game.context.match}
+            fontSize="2xl"
+            mb={8}
+            fontWeight="medium"
+          />
           <Button
             size="lg"
             colorScheme="blue"
