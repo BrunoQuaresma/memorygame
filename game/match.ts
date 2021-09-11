@@ -1,5 +1,5 @@
 import { assign, createMachine, sendParent } from "xstate";
-import { CardIndex, MatchContext } from "../types";
+import { CardIndex, MatchContext } from "./types";
 import { animals } from "./emojis";
 import { shuffle, takeRandom } from "./utils/array";
 import { playEndAudio, playFlipAudio, playMatchAudio } from "./audio";

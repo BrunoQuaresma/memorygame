@@ -1,4 +1,5 @@
-type CardValue = string;
+export type CardValue = string;
+
 export type CardIndex = number;
 
 export type MatchContext = {
