@@ -28,6 +28,10 @@ const removeFlippedCards = assign<MatchContext, MatchEvent>((context) => {
   };
 });
 
+const isNotFlipped = (context: MatchContext, event: MatchEvent) => {
+  return !context.flippedCards.includes(event.index);
+};
+
 const flippedCardsAreMatching = (context: MatchContext) => {
   const [first, second] = context.flippedCards;
   return context.board[first] === context.board[second];
@@ -61,6 +65,7 @@ export const matchMachine = createMachine<MatchContext, MatchEvent>(
           FLIP_CARD: {
             target: "checkResult",
             actions: "flipCard",
+            cond: "isNotFlipped",
           },
         },
       },
@@ -101,6 +106,7 @@ export const matchMachine = createMachine<MatchContext, MatchEvent>(
     guards: {
       flippedCardsAreMatching,
       hasNoAvailableCards,
+      isNotFlipped,
     },
   }
 );
