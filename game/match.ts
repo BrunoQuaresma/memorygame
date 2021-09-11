@@ -2,6 +2,7 @@ import { assign, createMachine, sendParent } from "xstate";
 import { CardIndex, MatchContext } from "../types";
 import { animals } from "./emojis";
 import { shuffle, takeRandom } from "./utils/array";
+import { playEndAudio, playFlipAudio, playMatchAudio } from "./audio";
 
 type FlipCardEvent = {
   type: "FLIP_CARD";
@@ -55,16 +56,16 @@ export const createMatchMachine = () =>
       initial: "idle",
       context: {
         flippedCards: [],
-        board: createBoard({ numberOfPairs: 18 }),
-        columns: 6,
-        rows: 6,
+        board: createBoard({ numberOfPairs: 2 }),
+        columns: 2,
+        rows: 2,
       },
       states: {
         idle: {
           on: {
             FLIP_CARD: {
               target: "flipedFirstCard",
-              actions: "flipCard",
+              actions: ["flipCard", "playFlipAudio"],
             },
           },
         },
@@ -72,7 +73,7 @@ export const createMatchMachine = () =>
           on: {
             FLIP_CARD: {
               target: "checkResult",
-              actions: "flipCard",
+              actions: ["flipCard", "playFlipAudio"],
               cond: "isNotFlipped",
             },
           },
@@ -83,7 +84,7 @@ export const createMatchMachine = () =>
               {
                 target: "success",
                 cond: "flippedCardsAreMatching",
-                actions: "removeFlippedCards",
+                actions: ["removeFlippedCards", "playMatchAudio"],
               },
               { target: "fail", actions: "untapCards" },
             ],
@@ -94,7 +95,7 @@ export const createMatchMachine = () =>
             {
               target: "end",
               cond: "hasNoAvailableCards",
-              actions: sendParent("END"),
+              actions: [sendParent("END"), "playEndAudio"],
             },
             { target: "idle" },
           ],
@@ -108,8 +109,11 @@ export const createMatchMachine = () =>
     {
       actions: {
         flipCard,
+        playFlipAudio,
         removeFlippedCards,
+        playMatchAudio,
         untapCards,
+        playEndAudio,
       },
       guards: {
         flippedCardsAreMatching,
