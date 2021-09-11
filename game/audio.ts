@@ -1,3 +1,5 @@
+/** Audios are downloaded from https://mixkit.co/free-sound-effects/game/ */
+
 export const playAudio = (audioFilename: string) => {
   const audio = new Audio(audioFilename);
   audio.play();
