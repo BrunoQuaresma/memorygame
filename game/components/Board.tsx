@@ -1,21 +1,23 @@
-import { Box, Grid } from "@chakra-ui/react";
+import { Box, Grid, Icon } from "@chakra-ui/react";
 import { useActor } from "@xstate/react";
 import React from "react";
 import { ActorRefFrom } from "xstate";
-import { matchMachine } from "../machines/match";
+import { createMatchMachine } from "../match";
+import { Card } from "./Card";
 
 type BoardProps = {
-  match: ActorRefFrom<typeof matchMachine>;
+  match: ActorRefFrom<ReturnType<typeof createMatchMachine>>;
 };
 
 export const Board: React.FC<BoardProps> = ({ match: matchActor }) => {
   const [match, sendMatchEvent] = useActor(matchActor);
+  const size = "80px";
 
   return (
     <Grid
       gap={1}
-      templateColumns={`repeat(${match.context.columns}, 40px)`}
-      templateRows={`repeat(${match.context.rows}, 40px)`}
+      templateColumns={`repeat(${match.context.columns}, ${size})`}
+      templateRows={`repeat(${match.context.rows}, ${size})`}
     >
       {match.context.board.map((cardValue, cardIndex) => {
         if (cardValue === undefined) {
@@ -25,21 +27,15 @@ export const Board: React.FC<BoardProps> = ({ match: matchActor }) => {
         const isFlipped = match.context.flippedCards.includes(cardIndex);
 
         return (
-          <Box
-            cursor="pointer"
-            onClick={() =>
+          <Card
+            onFlip={() =>
               sendMatchEvent({ type: "FLIP_CARD", index: cardIndex })
             }
+            isFlipped={isFlipped}
+            value={cardValue}
             key={cardIndex}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="gray.200"
-            width="40px"
-            height="40px"
-            rounded="md"
-          >
-            {isFlipped ? cardValue : ""}
-          </Box>
+            size={size}
+          />
         );
       })}
     </Grid>

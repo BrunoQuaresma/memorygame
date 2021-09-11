@@ -1,8 +1,8 @@
 import { createMachine, spawn, assign, ActorRefFrom } from "xstate";
-import { matchMachine } from "./match";
+import { createMatchMachine } from "./match";
 
 type GameContext = {
-  match?: ActorRefFrom<typeof matchMachine>;
+  match?: ActorRefFrom<ReturnType<typeof createMatchMachine>>;
 };
 
 type GameStartEvent = {
@@ -19,9 +19,11 @@ type GameRestartEvent = {
 
 type GameEvent = GameStartEvent | GameEndEvent | GameRestartEvent;
 
-const startNewMatch = assign<GameContext, GameEvent>(() => ({
-  match: spawn(matchMachine),
-}));
+const startNewMatch = assign<GameContext, GameEvent>(() => {
+  const match = spawn(createMatchMachine());
+
+  return { match };
+});
 
 export const gameMachine = createMachine<GameContext, GameEvent>(
   {
@@ -43,7 +45,9 @@ export const gameMachine = createMachine<GameContext, GameEvent>(
 
       ended: {
         on: {
-          RESTART: "started",
+          RESTART: {
+            target: "started",
+          },
         },
       },
     },
