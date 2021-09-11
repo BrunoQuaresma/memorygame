@@ -16,3 +16,9 @@ export const playMatchAudio = () => {
 export const playEndAudio = () => {
   playAudio("/audios/end.mp3");
 };
+
+export const preloadAudios = () => {
+  new Audio("/audios/flip.mp3");
+  new Audio("/audios/match.mp3");
+  new Audio("/audios/end.mp3");
+};

@@ -1,4 +1,5 @@
 import { createMachine, spawn, assign, ActorRefFrom } from "xstate";
+import { preloadAudios } from "./audio";
 import { createMatchMachine } from "./match";
 
 type GameContext = {
@@ -31,6 +32,7 @@ export const gameMachine = createMachine<GameContext, GameEvent>(
     initial: "idle",
     states: {
       idle: {
+        entry: "preloadAudios",
         on: {
           START: "started",
         },
@@ -54,6 +56,7 @@ export const gameMachine = createMachine<GameContext, GameEvent>(
   },
   {
     actions: {
+      preloadAudios,
       startNewMatch,
     },
   }
