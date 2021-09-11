@@ -55,9 +55,9 @@ export const createMatchMachine = () =>
       initial: "idle",
       context: {
         flippedCards: [],
-        board: createBoard({ numberOfPairs: 2 }),
-        columns: 2,
-        rows: 2,
+        board: createBoard({ numberOfPairs: 8 }),
+        columns: 4,
+        rows: 4,
       },
       states: {
         idle: {

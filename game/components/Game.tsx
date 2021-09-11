@@ -19,7 +19,6 @@ export const Game = () => {
     return (
       <Center p={10}>
         <Board match={game.context.match} />
-        <Button onClick={() => sendGameEvent("RESTART")}>Restart</Button>
       </Center>
     );
   }
