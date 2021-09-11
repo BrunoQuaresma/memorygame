@@ -15,7 +15,7 @@ export const Board: React.FC<BoardProps> = ({ match: matchActor }) => {
 
   return (
     <Grid
-      gap={1}
+      gap={3}
       templateColumns={`repeat(${match.context.columns}, ${size})`}
       templateRows={`repeat(${match.context.rows}, ${size})`}
     >

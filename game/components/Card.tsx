@@ -17,15 +17,25 @@ export const Card: React.FC<CardProps> = ({
   return (
     <Center
       as="button"
-      cursor="pointer"
+      disabled={isFlipped}
+      cursor={isFlipped ? "not-allowed" : "pointer"}
       onClick={onFlip}
       borderWidth={1}
+      borderBottomWidth={2}
       borderStyle="solid"
-      borderColor="gray.200"
+      borderColor={isFlipped ? "blue.200" : "gray.300"}
+      bgColor={isFlipped ? "white" : "gray.100"}
       width={size}
       height={size}
       rounded="md"
       fontSize="5xl"
+      transition="all 0.15s ease-in-out"
+      _hover={{
+        borderColor: "blue.200",
+        boxShadow: isFlipped ? undefined : "md",
+        bgColor: "white",
+        transform: isFlipped ? undefined : "scale(1.05)",
+      }}
     >
       {isFlipped ? value : ""}
     </Center>
