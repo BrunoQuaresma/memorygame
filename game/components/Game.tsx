@@ -1,4 +1,4 @@
-import { Button, Center, Heading } from "@chakra-ui/react";
+import { Box, Button, Center, Heading } from "@chakra-ui/react";
 import { useMachine } from "@xstate/react";
 import React from "react";
 import { gameMachine } from "../game";
@@ -9,8 +9,19 @@ export const Game = () => {
 
   if (game.matches("idle")) {
     return (
-      <Center>
-        <Button onClick={() => sendGameEvent("START")}>Start the game</Button>
+      <Center p={20}>
+        <Box textAlign="center">
+          <Heading as="h1" fontSize="6xl" mb={8}>
+            Memory Game
+          </Heading>
+          <Button
+            size="lg"
+            colorScheme="blue"
+            onClick={() => sendGameEvent("START")}
+          >
+            Start the game
+          </Button>
+        </Box>
       </Center>
     );
   }
@@ -25,9 +36,19 @@ export const Game = () => {
 
   if (game.matches("ended")) {
     return (
-      <Center p={10}>
-        <Heading>End!</Heading>
-        <Button onClick={() => sendGameEvent("RESTART")}>Restart</Button>
+      <Center p={20}>
+        <Box textAlign="center">
+          <Heading as="h1" fontSize="6xl" mb={8}>
+            Completed!
+          </Heading>
+          <Button
+            size="lg"
+            colorScheme="blue"
+            onClick={() => sendGameEvent("RESTART")}
+          >
+            Restart the game
+          </Button>
+        </Box>
       </Center>
     );
   }
