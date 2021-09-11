@@ -1,40 +1,27 @@
-import { Box, Grid } from "@chakra-ui/react";
+import { Button, Center } from "@chakra-ui/react";
 import { useMachine } from "@xstate/react";
 import React from "react";
 import { gameMachine } from "../machines/game";
+import { Board } from "./Board";
 
 export const Game = () => {
   const [game, sendGameEvent] = useMachine(gameMachine);
 
-  return (
-    <Grid
-      gap={1}
-      templateColumns={`repeat(${game.context.columns}, 40px)`}
-      templateRows={`repeat(${game.context.rows}, 40px)`}
-    >
-      {game.context.board.map((cardValue, cardIndex) => {
-        if (cardValue === undefined) {
-          return <div key={cardIndex} />;
-        }
+  if (game.matches("idle")) {
+    return (
+      <Center>
+        <Button onClick={() => sendGameEvent("START")}>Start the game</Button>
+      </Center>
+    );
+  }
 
-        const isFlipped = game.context.flippedCards.includes(cardIndex);
+  if (game.matches("started") && game.context.match) {
+    return <Board match={game.context.match} />;
+  }
 
-        return (
-          <Box
-            cursor="pointer"
-            onClick={() => sendGameEvent("FLIP_CARD", { index: cardIndex })}
-            key={cardIndex}
-            borderWidth={1}
-            borderStyle="solid"
-            borderColor="gray.200"
-            width="40px"
-            height="40px"
-            rounded="md"
-          >
-            {isFlipped ? cardValue : ""}
-          </Box>
-        );
-      })}
-    </Grid>
-  );
+  if (game.matches("ended")) {
+    return <h1>END!</h1>;
+  }
+
+  return null;
 };

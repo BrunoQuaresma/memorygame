@@ -1,113 +1,56 @@
-import { assign, createMachine } from "xstate";
-
-type CardValue = string;
-type CardIndex = number;
+import { createMachine, spawn, assign, ActorRefFrom } from "xstate";
+import { matchMachine } from "./match";
 
 type GameContext = {
-  flippedCards: Array<CardIndex>;
-  board: Array<CardValue | undefined>;
-  rows: number;
-  columns: number;
+  match?: ActorRefFrom<typeof matchMachine>;
 };
 
-type FlipCardEvent = {
-  type: "FLIP_CARD";
-  index: CardIndex;
+type GameStartEvent = {
+  type: "START";
 };
 
-type GameEvent = FlipCardEvent;
+type GameEndEvent = {
+  type: "END";
+};
 
-const flipCard = assign<GameContext, GameEvent>((context, event) => ({
-  flippedCards: context.flippedCards.concat(event.index),
+type GameRestartEvent = {
+  type: "RESTART";
+};
+
+type GameEvent = GameStartEvent | GameEndEvent | GameRestartEvent;
+
+const startNewMatch = assign<GameContext, GameEvent>(() => ({
+  match: spawn(matchMachine),
 }));
-
-const untapCards = assign<GameContext, GameEvent>(() => ({
-  flippedCards: [],
-}));
-
-const removeFlippedCards = assign<GameContext, GameEvent>((context) => {
-  const [first, second] = context.flippedCards;
-  let updatedBoard = context.board;
-  updatedBoard[first] = undefined;
-  updatedBoard[second] = undefined;
-
-  return {
-    flippedCards: [],
-    board: updatedBoard,
-  };
-});
-
-const flippedCardsAreMatching = (context: GameContext) => {
-  const [first, second] = context.flippedCards;
-  return context.board[first] === context.board[second];
-};
-
-const hasNoAvailableCards = (context: GameContext) => {
-  return context.board.every((card) => card === undefined);
-};
 
 export const gameMachine = createMachine<GameContext, GameEvent>(
   {
-    id: "Game",
+    id: "game",
     initial: "idle",
-    context: {
-      flippedCards: [],
-      board: ["a", "b", "a", "b"],
-      columns: 2,
-      rows: 2,
-    },
     states: {
       idle: {
         on: {
-          FLIP_CARD: {
-            target: "flipedFirstCard",
-            actions: "flipCard",
-          },
+          START: "started",
         },
       },
-      flipedFirstCard: {
+
+      started: {
+        entry: "startNewMatch",
         on: {
-          FLIP_CARD: {
-            target: "checkResult",
-            actions: "flipCard",
-          },
+          END: "ended",
         },
       },
-      checkResult: {
-        after: {
-          1000: [
-            {
-              target: "success",
-              cond: "flippedCardsAreMatching",
-              actions: "removeFlippedCards",
-            },
-            { target: "fail", actions: "untapCards" },
-          ],
+
+      ended: {
+        on: {
+          RESTART: "started",
         },
-      },
-      success: {
-        always: [
-          { target: "end", cond: "hasNoAvailableCards" },
-          { target: "idle" },
-        ],
-      },
-      fail: {
-        always: "idle",
-      },
-      end: {
-        type: "final",
       },
     },
   },
   {
     actions: {
-      flipCard,
-      removeFlippedCards,
-      untapCards,
-    },
-    guards: {
-      flippedCardsAreMatching,
-      hasNoAvailableCards,
+      startNewMatch,
     },
   }
 );
