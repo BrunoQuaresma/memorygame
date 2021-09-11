@@ -32,5 +32,5 @@ export const Game = () => {
     );
   }
 
-  return null;
+  return <Heading>Oops. Something wrong happened.</Heading>;
 };
